@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 10f;
 
     bool space ;
+    
 
     void Start()
     {
@@ -21,11 +22,13 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         GetInputs();
+       
 
     }
 
     void FixedUpdate() 
     {
+        
         Jump();
         GravityArranger();
         
@@ -38,8 +41,6 @@ public class PlayerController : MonoBehaviour
             space = true;
         }
         
-
-
 
     }
 
@@ -101,6 +102,8 @@ public class PlayerController : MonoBehaviour
     {
         rb.velocity = Vector3.zero;
     }
+
+
     void OnCollisionEnter2D(Collision2D other) 
     {
         VelocityZero();
