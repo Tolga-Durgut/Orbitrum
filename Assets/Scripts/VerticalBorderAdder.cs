@@ -37,6 +37,8 @@ public class VerticalBorderAdder : MonoBehaviour
             topRight // Ekranın sağ üst köşesi
         };
 
+        leftCollider.gameObject.tag = "Wall";
+        rightCollider.gameObject.tag = "Wall";
         // Colliderları Kameranın Child'ı yapar.
         leftCollider.transform.SetParent(Camera.main.transform);
         rightCollider.transform.SetParent(Camera.main.transform);

@@ -1230,6 +1230,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpForce: 10000
+  wallJumpForce: 10000
 --- !u!212 &1363104279
 SpriteRenderer:
   m_ObjectHideFlags: 0
