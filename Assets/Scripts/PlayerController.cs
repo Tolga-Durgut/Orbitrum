@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -7,174 +8,130 @@ public class PlayerController : MonoBehaviour
 {
    
     Rigidbody2D rb;
-    [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private float wallJumpForce = 10;
-
-    bool space ;
-    bool canWallSlide;
-    bool isWallSliding;
-    bool isWallDetected;
+    LineRenderer lineRenderer;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] GameObject planet;
+    bool attach = false;
+    bool isAttachedtoPlanet = false;
 
     void Start()
     {
         
         rb = GetComponent<Rigidbody2D>();
+        lineRenderer = GetComponent<LineRenderer>();
     }
 
    
     void Update()
     {
-        GetInputs();
-       
 
+        GetInputs();
+        PlanetParentArranger();
+        
     }
 
     void FixedUpdate() 
     {
-        
-        Jump();
-        GravityArranger();
-        
+       
+        MoveUp();
         
     }
 
     void GetInputs()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space))
         {
-            space = true;
+            attach = true;
         }
         if (Input.GetKeyUp(KeyCode.Space))
         {
-            space = false;
+            attach = false;
         }
         
 
     }
 
-    
-   
-    void Jump()
-    {
-        if (space && transform.parent != null)
-        {
-            Vector2 target = TargetDirectionArranger();
-            PlanetDeattacher();
-            rb.AddForce(target * jumpForce  * Time.fixedDeltaTime);
-            
-            space = false;
-        
-        }
-        else if (space && isWallDetected)
-        {   
-            VelocityZero();
-            WallJump();
-            space = false;
-        }
-    }
-
-    
-    Vector3 TargetDirectionArranger()
-    {
-        Vector3 difference = transform.position - transform.parent.position;
-        Vector3.Normalize(difference);
-        
-        
-        return difference;
-    }
-    
-
-    void PlanetAttacher(Collision2D other)
-    {
-        if (other.gameObject.tag == "Planet")
-        {
-            transform.SetParent(other.transform);
-           
-        }
-    }
-
-    void PlanetDeattacher()
-    {
-        
-        transform.SetParent(null);
-            
-        
-    }
-    /// If Player is Connected to a planet this method disables the gravity
-    void GravityArranger()
+    void MoveUp()
     {
         if (transform.parent == null)
         {
-            rb.gravityScale = 1;
+          
+           rb.velocity = transform.up * moveSpeed;
+            
+        }
+    }
+
+
+    void PlanetParentArranger()
+    {
+        if (attach)
+        {
+            lineRenderer.enabled = true;
+            LineDrawer();
+            if (RightAngleChecker())
+            {
+                rb.velocity = Vector3.zero;
+                transform.SetParent(planet.transform);
+                
+            }
+
         }
         else
         {
-            rb.gravityScale = 0;
+            lineRenderer.enabled = false;
+            transform.SetParent(null);
         }
     }
 
-    void VelocityZero()
+    void LineDrawer()
     {
-        rb.velocity = Vector3.zero;
+        lineRenderer.SetPosition(0,transform.position);
+        lineRenderer.SetPosition(1,planet.transform.position);
     }
-   
 
-   #region  WallSlide and WallJump
-    void WallEntryCheck(Collision2D other)
+
+    bool  RightAngleChecker()
+    {   
+        float angle;
+        bool result;
+        Vector3 vectorA = transform.up;
+        Vector3 vectorB = planet.transform.position - transform.position;
+        vectorA = vectorA.normalized;
+        vectorB = vectorB.normalized;
+
+        angle = Vector2.Angle(vectorA, vectorB);
+
+        
+        // DrawLine Code-----
+        Vector2 endPointA = transform.position + vectorA;
+        Vector2 endPointB = transform.position + vectorB;
+        Debug.DrawLine(new Vector3(transform.position.x,transform.position.y,0), new Vector3(endPointA.x,endPointA.y,0), Color.green);
+        Debug.DrawLine(new Vector3(transform.position.x,transform.position.y,0), new Vector3(endPointB.x,endPointB.y,0), Color.red);
+        
+
+        result = (angle >= 90) ?  true :  false;
+        
+        return result;
+
+    }
+
+    void DirectionArranger()
     {
-        if (other.gameObject.tag == "Wall")
-        {
-            isWallDetected = true;
-            
-        }
         
     }
 
-    void WallExitCheck(Collision2D other)
-    {
-        if (other.gameObject.tag == "Wall")
-        {
-            isWallDetected = false;
-            
-        }
-    }
-
-    void WallSlide()
-    {
-        if (isWallDetected && rb.velocity.y < 0 && canWallSlide)
-        {
-            isWallSliding = true;
-        }
-        else
-        {
-            isWallSliding = false;
-        }
-    }
-
-    void WallJump()
-    {
-        if (transform.position.x < 0)
-            {
-                rb.AddForce(Vector2.one * wallJumpForce * Time.fixedDeltaTime );
-            }
-            else if (transform.position.x > 0)
-            {
-                rb.AddForce(new Vector2(-1,1) * wallJumpForce * Time.fixedDeltaTime );
-            }
-    }
-    #endregion
-    void OnCollisionEnter2D(Collision2D other) 
-    {
-        VelocityZero();
-        PlanetAttacher(other);
-        WallEntryCheck(other);
-
-    }
    
-    void OnCollisionExit2D(Collision2D other) 
-    {
-        WallExitCheck(other); ;
-    }
+
+    
+    
+   
+  
+
+    
+
+   
+  
+    
 
 
 

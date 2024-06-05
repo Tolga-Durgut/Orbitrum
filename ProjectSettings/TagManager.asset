@@ -43,11 +43,11 @@ TagManager:
   - name: Background
     uniqueID: 4093398393
     locked: 0
-  - name: Planet
-    uniqueID: 3451090935
-    locked: 0
   - name: Player
     uniqueID: 2568726093
+    locked: 0
+  - name: Planet
+    uniqueID: 3451090935
     locked: 0
   - name: Default
     uniqueID: 0
